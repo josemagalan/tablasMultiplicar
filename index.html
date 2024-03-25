@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Práctica de Tablas de Multiplicar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #contenedor {
+            background-color: #fff;
+            margin: auto;
+            width: 50%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .mensaje {
+            font-size: 18px;
+            margin: 20px;
+        }
+
+        .oculto {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="contenedor">
+        <h1>Práctica de Tablas de Multiplicar</h1>
+        <p id="introduccion">¡Bienvenido! Ingresa tu nombre y la tabla más alta que quieres practicar (1-9):</p>
+        <input type="text" id="nombreUsuario" placeholder="Tu nombre aquí" onkeypress="detectarEnter(event, 'nombre')">
+        <input type="text" id="tablaMaxima" placeholder="Tabla más alta a practicar (1-9)" onkeypress="detectarEnter(event, 'tablaMaxima')">
+        <button onclick="iniciarJuego()">Iniciar</button>
+
+        <div id="juego" class="oculto">
+            <p id="pregunta"></p>
+            <input type="text" id="respuestaUsuario" placeholder="Tu respuesta" onkeypress="detectarEnter(event)">
+            <button onclick="comprobarRespuesta()">Comprobar</button>
+            <p id="feedback" class="mensaje"></p>
+        </div>
+    </div>
+
+<script>
+    let nombre;
+    let aciertosConsecutivos = 0;
+	let tablas = [];
+
+function obtenerMensaje(tipo) {
+    const baseMensajes = tipo === 'acierto' ? [
+        "¡Excelente, {nombre}! Sigue así.",
+        "¡Muy bien, {nombre}! Estás haciendo un gran trabajo.",
+        "¡Fantástico, {nombre}! Inés estará muy orgullosa.",
+        "¡Increíble, {nombre}! Lo estás haciendo perfecto.",
+        "¡Genial, {nombre}! Continúa con ese buen esfuerzo."
+    ] : [
+        "No te preocupes, {nombre}, ¡la próxima seguro que aciertas!",
+        "Sigue intentándolo, {nombre}, ¡estás aprendiendo mucho!",
+        "¡Ánimo, {nombre}! Aprender es también equivocarse.",
+        "No pasa nada, {nombre}, cada error es una oportunidad para mejorar.",
+        "Recuerda, {nombre}, la práctica hace al maestro. ¡Sigue adelante!"
+    ];
+
+    const mensajeAleatorio = baseMensajes[Math.floor(Math.random() * baseMensajes.length)];
+    return mensajeAleatorio.replace("{nombre}", nombre);
+}
+
+
+
+    function iniciarJuego() {
+        nombre = document.getElementById('nombreUsuario').value;
+        let tablaMaxima = parseInt(document.getElementById('tablaMaxima').value);
+        if (nombre && tablaMaxima && tablaMaxima >= 1 && tablaMaxima <= 9) {
+            tablas = Array.from({ length: tablaMaxima }, (_, i) => i + 1);
+            tablas.push(10); // Incluir siempre la tabla del 10
+            document.getElementById('introduccion').classList.add('oculto');
+            document.getElementById('nombreUsuario').classList.add('oculto');
+            document.getElementById('tablaMaxima').classList.add('oculto');
+            document.querySelector('button').classList.add('oculto');
+            document.getElementById('juego').classList.remove('oculto');
+            generarPregunta();
+        } else {
+            alert('Por favor, ingresa tu nombre y la tabla más alta que quieres practicar (entre 1 y 9).');
+        }
+    }
+
+    function generarPregunta() {
+        let num1 = tablas[Math.floor(Math.random() * tablas.length)];
+        let num2 = Math.floor(Math.random() * 10) + 1;
+        document.getElementById('pregunta').textContent = `Hola, ${nombre}. ¿Cuánto es ${num1} multiplicado por ${num2}?`;
+        window.respuestaCorrecta = num1 * num2;
+    }
+
+    function comprobarRespuesta() {
+        let respuesta = parseInt(document.getElementById('respuestaUsuario').value);
+        if (respuesta === window.respuestaCorrecta) {
+            aciertosConsecutivos++;
+            document.getElementById('feedback').textContent = `${obtenerMensaje('acierto')} Llevas ${aciertosConsecutivos} aciertos consecutivos.`;
+            mostrarImagen(aciertosConsecutivos);
+        } else {
+            aciertosConsecutivos = 0;
+            document.getElementById('feedback').textContent = obtenerMensaje('fallo');
+            ocultarImagen();
+        }
+        document.getElementById('respuestaUsuario').value = '';
+        generarPregunta();
+    }
+
+    function mostrarImagen(aciertos) {
+        let imagen = document.getElementById('imagenExito');
+        if ([5, 10, 15, 25, 50].includes(aciertos)) {
+            imagen.src = `${aciertos}.webp`;
+            imagen.style.display = 'block';
+        } else {
+            ocultarImagen();
+        }
+    }
+
+    // Función ocultarImagen sin cambios
+
+
+    function ocultarImagen() {
+        let imagen = document.getElementById('imagenExito');
+        imagen.style.display = 'none';
+    }
+	
+    function detectarEnter(event, campo) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (campo === 'nombre') {
+                // Mover el foco al siguiente campo
+                document.getElementById('tablaMaxima').focus();
+            } else if (campo === 'tablaMaxima') {
+                iniciarJuego();
+            } else {
+                comprobarRespuesta();
+            }
+        }
+    }
+
+</script>
+
+	
+	
+	<img id="imagenExito" src="" style="display: none; width: 50%; margin: 20px auto;" />
+
+
+</body>
+</html>
+
