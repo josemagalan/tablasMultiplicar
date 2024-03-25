@@ -134,7 +134,7 @@ function obtenerMensaje(tipo) {
 
     function mostrarImagen(aciertos) {
         let imagen = document.getElementById('imagenExito');
-        if ([5, 10, 15, 25, 50].includes(aciertos)) {
+        if ([5, 10, 15, 25, 50, 75, 100].includes(aciertos)) {
             imagen.src = `${aciertos}.webp`;
             imagen.style.display = 'block';
         } else {
